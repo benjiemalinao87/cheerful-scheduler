@@ -1,74 +1,83 @@
 import { useState } from "react";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { BookingModal } from "./BookingModal";
 import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  format,
+  addMonths,
+  subMonths,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  isSameDay,
+  isToday,
+} from "date-fns";
 
-const AVAILABLE_TIMES = [
-  "9:00 AM",
-  "10:00 AM",
-  "11:00 AM",
-  "2:00 PM",
-  "3:00 PM",
-  "4:00 PM",
-];
+interface CalendarProps {
+  selectedDate: Date | null;
+  onSelectDate: (date: Date) => void;
+}
 
-export const Calendar = () => {
-  const [date, setDate] = useState<Date | undefined>(undefined);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [showModal, setShowModal] = useState(false);
+export function Calendar({ selectedDate, onSelectDate }: CalendarProps) {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  const handleTimeSelect = (time: string) => {
-    setSelectedTime(time);
-    setShowModal(true);
-  };
+  const days = eachDayOfInterval({
+    start: startOfMonth(currentMonth),
+    end: endOfMonth(currentMonth),
+  });
+
+  const handlePreviousMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
+  const handleNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
 
   return (
-    <div className="p-6 bg-white">
-      <div className="space-y-6">
-        <div className="flex items-center gap-2">
-          <CalendarIcon className="h-5 w-5 text-gray-500" />
-          <h2 className="text-lg font-semibold">Select Date & Time</h2>
-        </div>
-
-        <CalendarComponent
-          mode="single"
-          selected={date}
-          onSelect={setDate}
-          className="rounded-md border"
-          disabled={(date) => {
-            const day = date.getDay();
-            return day === 0 || day === 6; // Disable weekends
-          }}
-        />
-
-        {date && (
-          <div className="space-y-4">
-            <h3 className="font-medium text-gray-900">Available Times</h3>
-            <div className="grid grid-cols-2 gap-2">
-              {AVAILABLE_TIMES.map((time) => (
-                <Button
-                  key={time}
-                  variant="outline"
-                  onClick={() => handleTimeSelect(time)}
-                  className="justify-start"
-                >
-                  {time}
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {showModal && (
-          <BookingModal
-            isOpen={showModal}
-            onClose={() => setShowModal(false)}
-            date={date!}
-            time={selectedTime!}
-          />
-        )}
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <Button
+          variant="ghost"
+          onClick={handlePreviousMonth}
+          className="flex items-center gap-2"
+        >
+          <ChevronLeft className="h-5 w-5" />
+          Previous
+        </Button>
+        <span className="text-lg font-medium">
+          {format(currentMonth, "MMMM yyyy")}
+        </span>
+        <Button
+          variant="ghost"
+          onClick={handleNextMonth}
+          className="flex items-center gap-2"
+        >
+          Next
+          <ChevronRight className="h-5 w-5" />
+        </Button>
+      </div>
+      <div className="grid grid-cols-7 gap-1 text-center">
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+          <span key={day} className="text-sm font-medium text-gray-600">
+            {day}
+          </span>
+        ))}
+      </div>
+      <div className="grid grid-cols-7 gap-1">
+        {days.map((day) => (
+          <Button
+            key={day.toISOString()}
+            onClick={() => onSelectDate(day)}
+            variant="outline"
+            className={`h-10 ${
+              isSameDay(day, selectedDate || new Date())
+                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                : "bg-background hover:bg-accent"
+            } ${
+              isToday(day)
+                ? "border-primary"
+                : "border-border"
+            }`}
+          >
+            {format(day, "d")}
+          </Button>
+        ))}
       </div>
     </div>
   );
-};
+}
