@@ -24,30 +24,35 @@ export const Calendar = () => {
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-sm">
-      <div className="space-y-6">
+    <div className="p-8 flex-1">
+      <div className="space-y-8">
         <div className="flex items-center gap-2 pb-4 border-b">
           <CalendarIcon className="h-5 w-5 text-gray-500" />
           <h2 className="text-lg font-semibold">Select Date & Time</h2>
         </div>
 
-        <div className="bg-gradient-to-br from-gray-50 to-white p-4 rounded-lg border">
+        <div className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-lg border">
           <CalendarComponent
             mode="single"
             selected={date}
             onSelect={setDate}
-            className="rounded-md"
+            className="mx-auto"
             disabled={(date) => {
               const day = date.getDay();
               return day === 0 || day === 6; // Disable weekends
+            }}
+            styles={{
+              head_cell: { width: "100%" },
+              cell: { width: "100%" },
+              button: { width: "100%" },
             }}
           />
         </div>
 
         {date && (
-          <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+          <div className="space-y-4 bg-gray-50 p-6 rounded-lg">
             <h3 className="font-medium text-gray-900">Available Times</h3>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {AVAILABLE_TIMES.map((time) => (
                 <Button
                   key={time}
