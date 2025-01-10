@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
 
 const formSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
@@ -43,9 +44,35 @@ interface BookingModalProps {
 
 export const BookingModal = ({ isOpen, onClose, date, time }: BookingModalProps) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      productInterest: "",
+    },
   });
+
+  useEffect(() => {
+    // Set form values from URL parameters if they exist
+    const firstName = searchParams.get("firstName");
+    const lastName = searchParams.get("lastName");
+    const email = searchParams.get("email");
+    const phone = searchParams.get("phone");
+    const productInterest = searchParams.get("productInterest");
+
+    console.log("URL Parameters:", { firstName, lastName, email, phone, productInterest });
+
+    if (firstName) form.setValue("firstName", firstName);
+    if (lastName) form.setValue("lastName", lastName);
+    if (email) form.setValue("email", email);
+    if (phone) form.setValue("phone", phone);
+    if (productInterest) form.setValue("productInterest", productInterest);
+  }, [searchParams, form]);
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     const booking = {
