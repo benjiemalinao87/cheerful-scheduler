@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 const Index = () => {
   const navigate = useNavigate();
 
+  console.log("Index page rendered");
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="text-center space-y-4">
@@ -11,7 +13,10 @@ const Index = () => {
         <p className="text-gray-600">Book your appointment in just a few clicks</p>
         <Button 
           size="lg"
-          onClick={() => navigate("/schedule")}
+          onClick={() => {
+            console.log("Schedule Meeting button clicked");
+            navigate("/schedule");
+          }}
         >
           Schedule Meeting
         </Button>
